@@ -11,13 +11,14 @@ type FileField = {
 function refactorMulter(folderName: string) {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, `src/uploads/${folderName}`);
+      cb(null, `uploads/${folderName}`);
     },
     filename: (req, file, cb) => {
+      // Create unique name 
       cb(null, uuidv4() + " - " + file.originalname);
     },
   });
-
+  // image only 
   // Specify types for the fileFilter function
   function fileFilter(
     req: Express.Request,

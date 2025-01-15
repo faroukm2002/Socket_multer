@@ -21,13 +21,8 @@ const productSchema = new Schema(
 );
 productSchema.post("init", (doc) => {
   if (doc.imgCover) {
-    console.log(
-      "imgCover URL:",
-      process.env.BASEURL + "product/" + encodeURIComponent(doc.imgCover)
-    );
-    doc.imgCover =
-      process.env.BASEURL + "product/" + encodeURIComponent(doc.imgCover);
+    const encodedImage = encodeURIComponent(doc.imgCover);
+    doc.imgCover = `${process.env.BASEURL}/product/${encodedImage}`;
   }
 });
-
 export const productModel = model("product", productSchema);
