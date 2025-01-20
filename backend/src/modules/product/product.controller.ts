@@ -2,20 +2,34 @@ import { AppError } from "./../../utils/AppError";
 import { productModel } from "../../../database/models/product.model";
 import { catchError } from "./../../utils/catchError";
 import { NextFunction, Request, Response } from "express";
-
-const addProduct = catchError(async (req, res, next) => {
-  if (req.file) {
-    req.body.imgCover = req.file.filename;
+const addProduct = catchError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    //*****/ if single image
+    
+    // if (req.file) {
+    //   req.body.imgCover = req.file.filename;
+    // }
+       if (req.files) {
+         const files = req.files as {
+           [fieldname: string]: Express.Multer.File[];
+         };
+         if (files["imgCover"]) {
+           req.body.imgCover = files["imgCover"][0].filename;
+         }
+         if (files["images"]) {
+           req.body.images = files["images"].map((file) => file.filename);
+         }
+       }
+    const { title } = req.body;
+    const existProduct = await productModel.findOne({ title });
+    if (existProduct) {
+      return next(new AppError("Product title already exists", 400));
+    }
+    const Product = new productModel(req.body);
+    await Product.save();
+    res.status(201).json({ message: "success", Product });
   }
-  const { title } = req.body;
-  const existProduct = await productModel.findOne({ title });
-  if (existProduct) {
-    return next(new AppError("Product title already exists", 400));
-  }
-  const Product = new productModel(req.body);
-  await Product.save();
-  res.status(201).json({ message: "success", Product });
-});
+);
 
 const getAllProduct = catchError(
   async (req: Request, res: Response, next: NextFunction) => {

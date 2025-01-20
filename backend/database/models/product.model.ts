@@ -1,5 +1,13 @@
-import { Schema, model } from "mongoose";
-const productSchema = new Schema(
+import { Schema, model, Document } from "mongoose";
+
+interface IProduct extends Document {
+  title: string;
+  price: number;
+  imgCover?: string;
+  images?: string[]; 
+}
+
+const productSchema = new Schema<IProduct>(
   {
     title: {
       type: String,
@@ -16,13 +24,23 @@ const productSchema = new Schema(
     imgCover: {
       type: String,
     },
+    images: {
+      type: [String], 
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
 productSchema.post("init", (doc) => {
   if (doc.imgCover) {
     const encodedImage = encodeURIComponent(doc.imgCover);
     doc.imgCover = `${process.env.BASEURL}/product/${encodedImage}`;
   }
+  if (doc.images && doc.images.length > 0) {
+    doc.images = doc.images.map(
+      (img) => `${process.env.BASEURL}/product/${encodeURIComponent(img)}`
+    );
+  }
 });
-export const productModel = model("product", productSchema);
+
+export const productModel = model<IProduct>("product", productSchema);

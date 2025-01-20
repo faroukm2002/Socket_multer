@@ -34,9 +34,15 @@ function refactorMulter(folderName: string) {
 
   return multer({ storage, fileFilter });
 }
-
+//  Example usage
+//  uploadSingleFile("imgCover", "product"),
 export const uploadSingleFile = (fieldName: string, folderName: string) =>
   refactorMulter(folderName).single(fieldName);
 
+// Example usage:
+//  uploadMixFiles uploadMixFiles([
+//     { name: 'imgCover', maxCount: 1 },
+//     { name: 'images', maxCount: 20 }
+//   ],'product')
 export const uploadMixFiles = (arrOFfields: FileField[], folderName: string) =>
   refactorMulter(folderName).fields(arrOFfields);
